@@ -6,12 +6,12 @@ const basePath = isGitHubPages && repositoryName ? `/${repositoryName}` : "";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: "export",
-  trailingSlash: true,
+  output: isGitHubPages ? "export" : undefined,
+  trailingSlash: isGitHubPages,
   basePath,
   assetPrefix: basePath,
   images: {
-    unoptimized: true,
+    unoptimized: isGitHubPages,
   },
 };
 
