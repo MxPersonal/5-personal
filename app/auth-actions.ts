@@ -44,12 +44,13 @@ export async function registerAction(formData: FormData) {
   redirect(withMessage("/login", "message", "لینک تأیید برای شما ارسال شد. پس از تأیید ایمیل وارد شوید."));
 }
 
-export async function googleLoginAction() {
-  ensureConfigured("/login");
-  if (process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED !== "true") redirect(withMessage("/login", "error", "ورود گوگل هنوز فعال نشده است."));
+export async function googleLoginAction(formData: FormData) {
+  const authPath = value(formData, "source") === "register" ? "/register" : "/login";
+  ensureConfigured(authPath);
+  if (process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED !== "true") redirect(withMessage(authPath, "error", "ورود گوگل هنوز فعال نشده است."));
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${getSiteUrl()}/auth/callback?next=/account`, skipBrowserRedirect: true } });
-  if (error || !data.url) redirect(withMessage("/login", "error", "شروع ورود با گوگل انجام نشد."));
+  if (error || !data.url) redirect(withMessage(authPath, "error", "شروع ورود با گوگل انجام نشد."));
   redirect(data.url);
 }
 
