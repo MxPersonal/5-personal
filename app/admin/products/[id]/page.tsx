@@ -1,0 +1,17 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { saveProductAction } from "@/app/admin/actions";
+import { DashboardHeader } from "@/components/dashboard-shell";
+import { requireAdmin } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = { title: "ویرایش محصول", robots: { index: false, follow: false } };
+type Props = { params: Promise<{ id: string }> };
+export default async function EditProductPage({ params }: Props) {
+  const [, { id }] = await Promise.all([requireAdmin(), params]);
+  const supabase = await createClient();
+  const { data: product } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
+  if (!product) notFound();
+  return <><DashboardHeader eyebrow="ویرایش کاتالوگ" title={product.name} description="تغییرات پس از ذخیره در کاتالوگ عمومی و سبد خرید اعمال می‌شوند." action={<Link className="text-link" href="/admin/products">بازگشت به محصولات</Link>}/><section className="dashboard-panel"><form className="panel-form product-form" action={saveProductAction}><input type="hidden" name="id" value={product.id}/><div className="form-row"><label>نام فارسی<input name="name" defaultValue={product.name} required/></label><label>نام انگلیسی<input name="englishName" defaultValue={product.english_name} required/></label></div><div className="form-row"><label>Slug انگلیسی<input name="slug" dir="ltr" defaultValue={product.slug} pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required/></label><label>دسته‌بندی<select name="category" defaultValue={product.category} required><option>دیجیتال</option><option>اکسسوری</option><option>خانه و زندگی</option><option>مد روزمره</option></select></label></div><div className="form-row"><label>قیمت (تومان)<input name="price" type="number" min="0" defaultValue={product.price} required/></label><label>قیمت قبل از تخفیف<input name="compareAtPrice" type="number" min="0" defaultValue={product.compare_at_price ?? ""}/></label><label>موجودی<input name="stock" type="number" min="0" defaultValue={product.stock} required/></label></div><div className="form-row"><label>نشان محصول<input name="badge" defaultValue={product.badge ?? ""}/></label><label>تصویرسازی<select name="artwork" defaultValue={product.artwork}><option value="headphones">هدفون</option><option value="watch">ساعت</option><option value="speaker">اسپیکر</option><option value="bag">کیف</option><option value="lamp">چراغ</option><option value="glasses">عینک</option><option value="mug">ماگ</option><option value="shoe">کفش</option></select></label></div><div className="form-row"><label>رنگ اصلی<input name="accent" type="color" defaultValue={product.accent}/></label><label>رنگ زمینه<input name="accentSoft" type="color" defaultValue={product.accent_soft}/></label></div><label>توضیح کوتاه<textarea name="shortDescription" rows={2} defaultValue={product.short_description} required/></label><label>شرح کامل<textarea name="description" rows={5} defaultValue={product.description} required/></label><label>ویژگی‌ها، هر مورد در یک خط<textarea name="features" rows={5} defaultValue={product.features.join("\n")} required/></label><label className="checkbox-label"><input name="isActive" type="checkbox" defaultChecked={product.is_active}/> انتشار در فروشگاه</label><button className="primary-button" type="submit">ذخیره تغییرات</button></form></section></>;
+}
