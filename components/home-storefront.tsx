@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { products } from "@/lib/catalog";
+import type { Product } from "@/lib/catalog";
 import { Icon } from "./icon";
 import { ProductArtwork } from "./product-artwork";
 import { ProductCard } from "./product-card";
 
-const featured = products.slice(0, 4);
-const heroProduct = products[0];
-
-export function HomeStorefront() {
+export function HomeStorefront({ products }: { products: Product[] }) {
+  const featured = products.slice(0, 4);
+  const heroProduct = products[0];
+  if (!heroProduct) return null;
   return (
     <>
       <section className="hero shell">

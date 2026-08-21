@@ -4,6 +4,7 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { CartProvider } from "@/components/cart-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { getCatalogProducts } from "@/lib/catalog-data";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -27,11 +28,12 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#18221f", colorScheme: "light" };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const products = await getCatalogProducts();
   return (
     <html lang="fa" dir="rtl">
       <body>
-        <CartProvider>
+        <CartProvider products={products}>
           <SiteHeader />
           <main id="main-content">{children}</main>
           <SiteFooter />

@@ -4,18 +4,19 @@ import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { ProductArtwork } from "@/components/product-artwork";
 import { ProductCard } from "@/components/product-card";
-import { formatPrice, getProduct, products } from "@/lib/catalog";
+import { formatPrice, products as fallbackProducts } from "@/lib/catalog";
+import { getCatalogProduct, getCatalogProducts } from "@/lib/catalog-data";
 import { Icon } from "@/components/icon";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
+  return fallbackProducts.map((product) => ({ slug: product.slug }));
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await getCatalogProduct(slug);
   if (!product) return {};
   return {
     title: product.name,
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const [product, products] = await Promise.all([getCatalogProduct(slug), getCatalogProducts()]);
   if (!product) notFound();
   const related = products.filter((item) => item.category === product.category && item.id !== product.id).slice(0, 3);
   const productJsonLd = { "@context": "https://schema.org", "@type": "Product", name: product.name, description: product.description, sku: `NV-${product.id.toString().padStart(4, "0")}`, brand: { "@type": "Brand", name: "نُوین" }, offers: { "@type": "Offer", priceCurrency: "IRR", price: product.price * 10, availability: "https://schema.org/InStock", url: `https://templatee-1.vercel.app/products/${product.slug}` } };

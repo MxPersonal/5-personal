@@ -10,6 +10,7 @@ const navigation = [
   { href: "/#story", label: "داستان ما" },
   { href: "/#services", label: "خدمات" },
   { href: "/#contact", label: "تماس" },
+  { href: "/account", label: "حساب من" },
 ];
 
 export function SiteHeader() {

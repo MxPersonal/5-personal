@@ -1,11 +1,11 @@
 "use client";
 
 import { useDeferredValue, useMemo, useState } from "react";
-import { categories, products, type Category } from "@/lib/catalog";
+import { categories, type Category, type Product } from "@/lib/catalog";
 import { Icon } from "./icon";
 import { ProductCard } from "./product-card";
 
-export function ShopCatalog({ initialQuery = "", initialCategory = "همه" }: { initialQuery?: string; initialCategory?: string }) {
+export function ShopCatalog({ products, initialQuery = "", initialCategory = "همه" }: { products: Product[]; initialQuery?: string; initialCategory?: string }) {
   const validCategory = categories.includes(initialCategory as Category) ? initialCategory as Category : "همه";
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<Category>(validCategory);
@@ -15,7 +15,7 @@ export function ShopCatalog({ initialQuery = "", initialCategory = "همه" }: {
     const categoryMatches = category === "همه" || product.category === category;
     const queryMatches = !deferredQuery || `${product.name} ${product.englishName} ${product.category}`.toLocaleLowerCase("fa").includes(deferredQuery.toLocaleLowerCase("fa"));
     return categoryMatches && queryMatches;
-  }), [category, deferredQuery]);
+  }), [category, deferredQuery, products]);
 
   return (
     <>

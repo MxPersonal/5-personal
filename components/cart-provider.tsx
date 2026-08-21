@@ -2,7 +2,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/catalog";
-import { products } from "@/lib/catalog";
 
 type CartLine = { productId: number; quantity: number };
 
@@ -29,7 +28,7 @@ const isCartLine = (value: unknown): value is CartLine => {
   return Number.isInteger(line.productId) && Number.isInteger(line.quantity) && line.quantity > 0;
 };
 
-export function CartProvider({ children }: { children: React.ReactNode }) {
+export function CartProvider({ children, products }: { children: React.ReactNode; products: Product[] }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -92,7 +91,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const items = useMemo(() => lines.flatMap((line) => {
     const product = products.find((item) => item.id === line.productId);
     return product ? [{ product, quantity: line.quantity }] : [];
-  }), [lines]);
+  }), [lines, products]);
 
   const value = useMemo<CartContextValue>(() => ({
     lines,
